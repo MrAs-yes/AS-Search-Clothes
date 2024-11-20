@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AS Quick Clothes Search</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #87CEEB; /* Biru langit */
+            color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+         }
+
+        .container {
+            background-color: #fff;
+            color: #000;
+            padding: 20px;
+            border: 1px solid #fff;            
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
+            text-align: center;
+            max-width: 700px;
+            width: 100%; /* Memastikan kontainer tidak lebih lebar dari layar */
+            height: 80vh; /* Memperpanjang kontainer ke bawah */
+            overflow-y: auto; /* Menambahkan scroll jika isinya melebihi tinggi kontainer */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .container:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.6);
+        }
+
+        h1 {
+            position: relative;
+            font-size: 3em;
+            margin-bottom: 20px;
+            color: #000;
+            text-shadow: 
+              0 0 10px #87CEEB, /* Hijau terang */
+              0 0 20px #87CEEB, /* Hijau lebih terang */
+              0 0 30px #87CEEB, /* Hijau lebih terang lagi */
+              0 0 40px #87CEEB, /* Hijau sangat terang */
+              0 0 50px #87CEEB; /* Hijau sangat sangat terang */
+               animation: glow 1.5s infinite alternate;
+           }
+
+        h1 span {
+                 position: absolute;
+                 right: 0; /* Posisikan "by AS Corps" di ujung kanan */
+                 bottom: 0;
+                 font-size: 0.5em;
+                 color: #000;
+        }
+
+        @keyframes glow {
+            0% {
+                text-shadow: 0 0 10px #00ccff, 0 0 20px #0099ff;
+            }
+            100% {
+                text-shadow: 0 0 20px #00ccff, 0 0 30px #0066ff;
+            }
+        }
+
+        select, button {
+            padding: 10px;
+            margin: 10px 0;
+            width: 100%;
+            font-size: 1.2em;
+            border-radius: 5px;
+            border: 1px solid #000;
+            transition: all 0.3s ease;
+        }
+
+        select {
+            background: #fff;
+            color: #000;
+        }
+
+        select:hover {
+            background-color: #87CEEB;
+            color: #000080;
+        }
+
+        button {
+            background: #87CEEB;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        button:hover {
+            background: #000;
+            color: #fff;
+            transform: translateY(-3px);
+        }
+
+        .results {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        /* Style untuk setiap item hasil pencarian */
+        .result-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid #87CEEB;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .result-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .result-container a {
+            color: #000;
+            font-weight: bold;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .result-container a:hover {
+            color: #FF6600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AS Clothes Search<span>by AS Corps</h1>
+        <form id="searchForm">
+            <label for="brand">Select Clothes:</label>
+            <select id="brand" name="brand">
+              <option value="Pakaian">Pakaian</option>
+              <option value="Pakaian Pria">Pakaian Pria</option>
+              <option value="Pakaian Wanita">Pakaian Wanita</option>
+              <option value="Pakaian Anak">Pakaian Anak</option>
+            </select>
+
+            <label for="type">Select Type Clothes:</label>
+            <select id="type" name="type">
+                <option value="">All Clothes Types</option>
+                <option value="Topi Pria">Topi Pria</option>
+                <option value="Kacamata Pria">Kacamata Pria</option>
+                <option value="Baju Pria">Baju Pria</option>
+                <option value="Celana Pria">Celana Pria</option>
+                <option value="Sepatu Pria">Sepatu Pria</option>
+                <option value="Jilbab Wanita">Jilbab Wanita</option>
+                <option value="Baju Wanita">Baju Wanita</option>
+                <option value="Tas Wanita">Tas Wanita</option>
+                <option value="Rok Wanita">Rok Wanita</option>
+                <option value="Sepatu Wanita">Sepatu Wanita</option>
+                <option value="Baju Anak">Baju Anak</option>
+                <option value="Celana Anak">Celana Anak</option>
+                <option value="Sepatu Anak">Sepatu Anak</option>
+            </select>
+
+            <button type="submit">Search</button>
+        </form>
+
+        <div class="results" id="results"></div>
+    </div>
+
+    <script>
+        const products = {
+            "Pakaian Pria": [
+                { type: "Topi Pria", name: "RCKLS. Polo Cap Black Brown | Topi denim I topi Pria", link: "https://shopee.co.id/RCKLS.-Polo-Cap-Black-Brown-Topi-denim-I-topi-Pria-i.265547337.15822496196?sp_atk=1bacd601-dd35-4861-83b9-be7ef405027f&xptdk=1bacd601-dd35-4861-83b9-be7ef405027f" },
+                { type: "Topi Pria", name: "Topi distro baseball topi pria topi pollocaps terbaru dan terlaris", link: "https://shopee.co.id/Topi-distro-baseball-topi-pria-topi-pollocaps-terbaru-dan-terlaris-i.795479572.28451471224?sp_atk=8cb58adf-8632-4cd4-a7de-7bd827e7a0dc&xptdk=8cb58adf-8632-4cd4-a7de-7bd827e7a0dc" },
+                { type: "Topi Pria", name: "Topi Pria Keren Visor Sport Fashion Hat Katun", link: "https://shopee.co.id/Topi-Pria-Keren-Visor-Sport-Fashion-Hat-Katun-i.1345879723.27209606227?sp_atk=68ab6a63-780e-4172-8197-02170a966612&xptdk=68ab6a63-780e-4172-8197-02170a966612" },
+                { type: "Topi Pria", name: "Topi Baseball SHAUN Narason Hat Cap Casual Distro Fashion Pria Wanita Logo NS Terbaru", link: "https://shopee.co.id/Topi-Baseball-SHAUN-Narason-Hat-Cap-Casual-Distro-Fashion-Pria-Wanita-Logo-NS-Terbaru-i.614020733.26203182027?sp_atk=23ff262a-4196-4788-a1c1-a49d5114b37f&xptdk=23ff262a-4196-4788-a1c1-a49d5114b37f" },
+                { type: "Topi Pria", name: "Topi Jaring DOROW // Topi Trucker Topi Jaring Pria // Topi Trucker Pria", link: "https://shopee.co.id/Topi-Jaring-DOROW-Topi-Trucker-Topi-Jaring-Pria-Topi-Trucker-Pria-Topi-Costume-Topi-Baseball-Bp2_collection-i.218138261.12899827816?sp_atk=df1fb992-8a0b-4b9d-b205-cbf5f4fb1af1&xptdk=df1fb992-8a0b-4b9d-b205-cbf5f4fb1af1" },
+                { type: "Topi Pria", name: "PROMO Topi distro topi polo topi baseball cap pria wanita", link: "https://shopee.co.id/PROMO-Topi-distro-topi-polo-topi-baseball-cap-pria-wanita-i.70071639.25819835944?sp_atk=d1fd096e-c756-4f15-9f60-e4152a5898eb&xptdk=d1fd096e-c756-4f15-9f60-e4152a5898eb" },
+                { type: "Topi Pria", name: "TOPI BASEBALL SURF BORDIR / TOPI BASE BALL SURF PRIA WANITA UNISEX", link: "https://shopee.co.id/TOPI-BASEBALL-SURF-BORDIR-TOPI-BASE-BALL-SURF-PRIA-WANITA-UNISEX-i.82155570.18965734263?sp_atk=12a52aae-04b4-4b87-b511-a3a6a736fda7&xptdk=12a52aae-04b4-4b87-b511-a3a6a736fda7" },
+                { type: "Topi Pria", name: "Topi topi baseball 100% katun warna pasir untuk wanita pria", link: "https://shopee.co.id/Topi-topi-baseball-100-katun-warna-pasir-untuk-wanita-pria-topi-ayah-vintage-topi-olahraga-luar-ruangan-huruf-bordir-NEW-YORK-i.643186402.24759826367?sp_atk=ca0d065d-46f7-4c7f-827b-ac1ee640d86c&xptdk=ca0d065d-46f7-4c7f-827b-ac1ee640d86c" },
+                { type: "Topi Pria", name: "Topi Baseball DUKE Narason Hat Cap Casual Distro Fashion Pria Wanita", link: "https://shopee.co.id/Topi-Baseball-DUKE-Narason-Hat-Cap-Casual-Distro-Fashion-Pria-Wanita-i.777304214.25378642090?sp_atk=aec3e0cf-b589-49dc-8f39-8a59d314d2dc&xptdk=aec3e0cf-b589-49dc-8f39-8a59d314d2dc" },
+                { type: "Topi Pria", name: "Topi Pria dan Wanita Cap Hat Cotton Material Bordir 1989 NEW YORK AMERICAN Baseball", link: "https://shopee.co.id/Topi-Pria-dan-Wanita-Cap-Hat-Cotton-Material-Bordir-1989-NEW-YORK-AMERICAN-Baseball-Terbaru-2023-bisa-bayar-di-tempat-i.387679135.22446290309?sp_atk=8e0e99fa-7c76-4c1e-b242-c09c163bf84f&xptdk=8e0e99fa-7c76-4c1e-b242-c09c163bf84f" },
+                { type: "Kacamata Pria", name: "FUNAYUREI D14 Kacamata Hitam Pria dan Wanita Kacamata Blue Light Blocking Anti Sinar Biru FREE POUCH", link: "https://shopee.co.id/FUNAYUREI-D14-Kacamata-Hitam-Pria-dan-Wanita-Kacamata-Blue-Light-Blocking-Anti-Sinar-Biru-FREE-POUCH-i.709027192.24321366336?sp_atk=04d33cc1-c891-4ae8-a54e-0f225c9ec6b4&xptdk=04d33cc1-c891-4ae8-a54e-0f225c9ec6b4" },
+                { type: "Kacamata Pria", name: "Kacamata Pria Terpolarisasi UV400 Memancing Bersepeda Olahraga", link: "https://shopee.co.id/Kacamata-Pria-Terpolarisasi-UV400-Memancing-Bersepeda-Olahraga-i.991212237.24866162718?sp_atk=47eca684-7347-4efb-b8d5-ecb7f9438df1&xptdk=47eca684-7347-4efb-b8d5-ecb7f9438df1" },
+                { type: "Kacamata Pria", name: "Kacamata Pria Lensa Mirror Iridium/Kacamata Hitam Retro Suglasses Anti silau 4001", link: "https://shopee.co.id/Kacamata-Pria-Lensa-Mirror-Iridium-Kacamata-Hitam-Retro-Suglasses-Anti-silau-4001-i.3078359.23109119914?sp_atk=de270d35-380e-40e9-bda0-2103ffd1bd0c&xptdk=de270d35-380e-40e9-bda0-2103ffd1bd0c" },
+                { type: "Kacamata Pria", name: "Kacamata gaya pria keren terbaru lensa kaca asli anti silau siang malam type 3016", link: "https://shopee.co.id/Kacamata-gaya-pria-keren-terbaru-lensa-kaca-asli-anti-silau-siang-malam-type-3016-i.600844238.17106346040" },
+                { type: "Kacamata Pria", name: "Kacamata fashion pria lensa polarized anti silau siang malam", link: "https://shopee.co.id/Kacamata-fashion-pria-lensa-polarized-anti-silau-siang-malam-i.600844238.14153856091" },
+                { type: "Kacamata Pria", name: "Kacamata Gaya Pria Sporty Lensa Polarized Anti Silau Siang Malam", link: "https://shopee.co.id/Kacamata-Gaya-Pria-Sporty-Lensa-Polarized-Anti-Silau-Siang-Malam-i.600844238.12878668893" },
+                { type: "Kacamata Pria", name: "Kacamata Fashion Pria Lensa Polarized Uv 400 Anti Silau", link: "https://shopee.co.id/Kacamata-Fashion-Pria-Lensa-Polarized-Uv-400-Anti-Silau-i.600844238.26606287397?sp_atk=5f8ee3d8-2011-48c7-96f3-fd6a45db17ae&xptdk=5f8ee3d8-2011-48c7-96f3-fd6a45db17ae" },
+                { type: "Kacamata Pria", name: "Fashion Square Frame Kacamata Terpolarisasi untuk Pria dan Wanita", link: "https://shopee.co.id/Fashion-Square-Frame-Kacamata-Terpolarisasi-untuk-Pria-dan-Wanita-Outdoor-Uv400-Kacamata-i.1192837527.28703056205?sp_atk=5e9345e8-b168-4dda-b0db-8668e33c58ca&xptdk=5e9345e8-b168-4dda-b0db-8668e33c58ca" },
+                { type: "Kacamata Pria", name: "Korea Kacamata Hitam Optik Anti Warna Permen Kacamata candy Wanita / Pria", link: "https://shopee.co.id/Korea-Kacamata-Hitam-Optik-Anti-Warna-Permen-Kacamata-candy-Wanita-Pria-Fashion-Sunglasses-005-i.312968779.23787188477?sp_atk=1a89de04-36e5-4db5-9613-7f90b953f6e0&xptdk=1a89de04-36e5-4db5-9613-7f90b953f6e0" },
+                { type: "Kacamata Pria", name: "Kacamata Wanita Pria Optik Anti Sunglass Dengan Sunglasses Kacamata Hitam", link: "https://shopee.co.id/RRNS-KM-005-Kacamata-Wanita-Pria-Optik-Anti-Sunglass-Dengan-Fashion-Sunglasses-Kacamata-Hitam-i.312968779.6269485699?sp_atk=ba388bae-2a01-4d3b-8380-6e946f61eef7&xptdk=ba388bae-2a01-4d3b-8380-6e946f61eef7" },
+                { type: "Baju Pria", name: "Dobujack Tshirt Basic Small Patch Black Tees", link: "https://shopee.co.id/Dobujack-Tshirt-Basic-Small-Patch-Black-Tees-i.175456753.23981374102?sp_atk=eb8b50ce-5175-41ec-bfa0-d78989624ee8&xptdk=eb8b50ce-5175-41ec-bfa0-d78989624ee8" },
+                { type: "Baju Pria", name: "Baju Kaos Distro pria wanita Streetwear Premium Wush Club Abstrack Tee", link: "https://shopee.co.id/Baju-Kaos-Distro-pria-wanita-Streetwear-Premium-Wush-Club-Abstrack-Tee-i.509547885.21967346115?sp_atk=80a037db-1f80-45d6-b0a0-3ed1db9d42bc&xptdk=80a037db-1f80-45d6-b0a0-3ed1db9d42bc" },
+                { type: "Baju Pria", name: "Baju Kaos Musik Band Distro NECKDEEP Tebal 24s", link: "https://shopee.co.id/Baju-Kaos-Musik-Band-Distro-NECKDEEP-Tebal-24s-i.45119803.22982110112?sp_atk=7309753c-901e-4d08-b2d4-46a9a144a37a&xptdk=7309753c-901e-4d08-b2d4-46a9a144a37a" },
+                { type: "Baju Pria", name: "Simplimoods Kaos Boxy Skena Oversize Baju Kaos Distro Pria Wanita Streetwear Bandung Free Sticker", link: "https://shopee.co.id/Simplimoods-Kaos-Boxy-Skena-Oversize-Baju-Kaos-Distro-Pria-Wanita-Streetwear-Bandung-Free-Sticker-i.374176980.12239406676?sp_atk=39d147d2-db13-404f-91f2-e2b56eef2356&xptdk=39d147d2-db13-404f-91f2-e2b56eef2356" },
+                { type: "Baju Pria", name: "Jackarmy - Tshirt TalkToMuch Cott 24s", link: "https://shopee.co.id/Jackarmy-Tshirt-TalkToMuch-Cott-24s-i.165115723.29453497090?sp_atk=2323ecaf-9ff2-471d-8c51-4a6063c932f4&xptdk=2323ecaf-9ff2-471d-8c51-4a6063c932f4" },
+                { type: "Baju Pria", name: "Screamous Polo Shirt CROWN LINE GOLD BLACK", link: "https://shopee.co.id/Screamous-Polo-Shirt-CROWN-LINE-GOLD-BLACK-i.47422788.14868895075?sp_atk=f203f022-4666-4b42-975d-d0d8cd313b99&xptdk=f203f022-4666-4b42-975d-d0d8cd313b99" },
+                { type: "Baju Pria", name: "Polo Shirt / Kerah Wangki / Kaos Kerah Polos / Kaos Seragaman / Kaos Kekinian Pria dan Wanita", link: "https://shopee.co.id/Polo-Shirt-Kerah-Wangki-Kaos-Kerah-Polos-Kaos-Seragaman-Kaos-Kekinian-Pria-dan-Wanita-i.1056239570.22277580750?sp_atk=9a94492d-b35d-4eac-a534-b9fe4470797d&xptdk=9a94492d-b35d-4eac-a534-b9fe4470797d" },
+                { type: "Baju Pria", name: "MALVARO Polo Shirt / Polo List / Kaos Kerah Pria / Kaos Polo / Tshirt Pria 700", link: "https://shopee.co.id/MALVARO-Polo-Shirt-Polo-List-Kaos-Kerah-Pria-Kaos-Polo-Tshirt-Pria-700-i.425095754.15514266958?sp_atk=626982e2-a4e8-46be-8a04-95632a96662c&xptdk=626982e2-a4e8-46be-8a04-95632a96662c" },
+                { type: "Baju Pria", name: "TEESNIKE REPEAT WHITE | KAOS PRIA LENGAN PENDEK GRADE ORIGINAL | TSHIRT PREMIUM | BAJU DISTRO KEREN TERBARU", link: "https://shopee.co.id/TEESNIKE-REPEAT-WHITE-KAOS-PRIA-LENGAN-PENDEK-GRADE-ORIGINAL-TSHIRT-PREMIUM-BAJU-DISTRO-KEREN-TERBARU-i.268622583.13797094444?sp_atk=8401a68c-5747-46a0-9f0d-4398462457a7&xptdk=8401a68c-5747-46a0-9f0d-4398462457a7" },
+                { type: "Baju Pria", name: "HOOLIGANS T-Shirt Linea - Black", link: "https://shopee.co.id/HOOLIGANS-T-Shirt-Linea-Black-i.28717111.4919059459?sp_atk=c00c3dfd-81b4-48ff-a12f-d5c10589f3bc&xptdk=c00c3dfd-81b4-48ff-a12f-d5c10589f3bc" },
+                { type: "Celana Pria", name: "RoosterDenim Celana Jeans Pria Skinny Biker Motor Knee Rips Black Denim Selvedge", link: "https://shopee.co.id/RoosterDenim-Celana-Jeans-Pria-Skinny-Biker-Motor-Knee-Rips-Black-Denim-Selvedge-i.293452135.7347692943?sp_atk=9599ecc9-268d-411c-9188-7fd6ce20b287&xptdk=9599ecc9-268d-411c-9188-7fd6ce20b287" },
+                { type: "Celana Pria", name: "CELANA PENDEK CARGO CORDUROY / CARGO PENDEK / CELANA CORDUROY", link: "https://shopee.co.id/CELANA-PENDEK-CARGO-CORDUROY-CARGO-PENDEK-CELANA-CORDUROY-i.94563161.23084517831?sp_atk=0498439d-c5cf-41f3-8be6-3325f53c1963&xptdk=0498439d-c5cf-41f3-8be6-3325f53c1963" },
+                { type: "Celana Pria", name: "PURPOSE - Boardshort Pendek Pria Bahan despo Lembut", link: "https://shopee.co.id/PURPOSE-Boardshort-Pendek-Pria-Bahan-despo-Lembut-i.1098236350.25832370513?sp_atk=6959ee4f-9718-44f0-bd00-57c7103fcbc0&xptdk=6959ee4f-9718-44f0-bd00-57c7103fcbc0" },
+                { type: "Celana Pria", name: "AlfheimCloth.Inc Celana Jeans Long Pants Denim - Slim Fit Men Scrap Black Whisker Denim S, M, L, XL", link: "https://shopee.co.id/AlfheimCloth.Inc-Celana-Jeans-Long-Pants-Denim-Slim-Fit-Men-Scrap-Black-Whisker-Denim-S-M-L-XL-i.80947441.23904004262?sp_atk=84842dca-c4dd-4ba3-9ea7-cc07f90a0c94&xptdk=84842dca-c4dd-4ba3-9ea7-cc07f90a0c94" },
+                { type: "Celana Pria", name: "Celana Jeans Long Pants Denim - Slim Fit Men Blitz Whisker Denim S, M, L, XL", link: "https://shopee.co.id/AlfheimCloth.Inc-Celana-Jeans-Long-Pants-Denim-Slim-Fit-Men-Blitz-Whisker-Denim-S-M-L-XL-i.80947441.20692446529?sp_atk=d97f9518-489e-4809-b423-e703a636daf8&xptdk=d97f9518-489e-4809-b423-e703a636daf8" },
+                { type: "Celana Pria", name: "Celana Jeans Pants Denim Slim Fit Men Dark Nidhoggr Washing Ripped Denim S,M,L,XL", link: "https://shopee.co.id/AlfheimCloth.Inc-Celana-Jeans-Pants-Denim-Slim-Fit-Men-Dark-Nidhoggr-Washing-Ripped-Denim-S-M-L-XL-i.80947441.20052739108?sp_atk=b1fd07a7-e0ad-4c30-8f49-1ef549105dbf&xptdk=b1fd07a7-e0ad-4c30-8f49-1ef549105dbf" },
+                { type: "Celana Pria", name: "Celana Jeans Long Pants Denim - Slim Fit Scrap Stacy Wave Whisker Denim S, M, L, XL", link: "https://shopee.co.id/AlfheimCloth.Inc-Celana-Jeans-Long-Pants-Denim-Slim-Fit-Scrap-Stacy-Wave-Whisker-Denim-S-M-L-XL-i.80947441.23678448207?sp_atk=18e002cb-e4aa-4fae-a76b-c7a24fd099aa&xptdk=18e002cb-e4aa-4fae-a76b-c7a24fd099aa" },
+                { type: "Celana Pria", name: "Trondheim Celana Jeans Denim Magen Scrap Grey Sandwash", link: "https://shopee.co.id/Trondheim-Celana-Jeans-Denim-Magen-Scrap-Grey-Sandwash-i.119232628.29804400269?sp_atk=2f5461f9-7b85-4b0a-a2e5-bb8a4afc7c09&xptdk=2f5461f9-7b85-4b0a-a2e5-bb8a4afc7c09" },
+                { type: "Celana Pria", name: "Celana Jeans Pria Denim Slimfit Shellstitch Darkgrey", link: "https://shopee.co.id/Trondheim-Celana-Jeans-Pria-Denim-Slimfit-Shellstitch-Darkgrey-i.119232628.22082244077?sp_atk=43752535-aca5-4760-8c20-04dcd77415f9&xptdk=43752535-aca5-4760-8c20-04dcd77415f9" },
+                { type: "Celana Pria", name: "Celana Jeans Pants Denim - Slim Fit Hem Washing Ripped S,M,L,XL", link: "https://id.shp.ee/SKCoKE6" },
+                { type: "Sepatu Pria", name: "Sepatu Pria Trend Fashion Slip On Pria Casual Sepatu", link: "https://shopee.co.id/Sepatu-Pria-Trend-Fashion-Slip-On-Pria-Casual-Sepatu-i.536369265.14429335236?sp_atk=6882c1bb-2dd4-4ab7-bc14-b8d624df5a7f&xptdk=6882c1bb-2dd4-4ab7-bc14-b8d624df5a7f" },
+                { type: "Sepatu Pria", name: "Ando Official Sepatu Sneakers Bsc 21 Pria Dewasa - Hitam/Putih", link: "https://shopee.co.id/Ando-Official-Sepatu-Sneakers-Bsc-21-Pria-Dewasa-Hitam-Putih-i.196734968.12605275244?sp_atk=77dc2e4c-824d-4028-949b-4f7ee3cf4b84&xptdk=77dc2e4c-824d-4028-949b-4f7ee3cf4b84" },
+                { type: "Sepatu Pria", name: "Sepatu Sneaker Pria Terbaru V 606 Brand Varka Sepatu Kasual Sepatu Pria Warna Hitam", link: "https://shopee.co.id/Sepatu-Sneaker-Pria-Terbaru-V-606-Brand-Varka-Sepatu-Kasual-Sepatu-Pria-Warna-Hitam-i.24672935.4500715513?sp_atk=61ca937b-b598-4a95-a433-e48684a304ea&xptdk=61ca937b-b598-4a95-a433-e48684a304ea" },                
+                { type: "Sepatu Pria", name: "Hertz - Sepatu Sneakers Pria Terbaru H 3083 Casual Kets sekolah Kuliah Warna Hitam", link: "https://shopee.co.id/Hertz-Sepatu-Sneakers-Pria-Terbaru-H-3083-Casual-Kets-sekolah-Kuliah-Warna-Hitam-i.9198698.17591439386?sp_atk=773149f9-4906-4d38-926b-60b8a2934911&xptdk=773149f9-4906-4d38-926b-60b8a2934911" },
+                { type: "Sepatu Pria", name: "Sepatu Sneakers Pria Casual Footstep Footwear Arka Grey", link: "https://shopee.co.id/Sepatu-Sneakers-Pria-Casual-Footstep-Footwear-Arka-Grey-i.24412313.6601064780?sp_atk=e8d885e7-f7eb-4847-abd3-851c6261ae3a&xptdk=e8d885e7-f7eb-4847-abd3-851c6261ae3a" },                
+                { type: "Sepatu Pria", name: "Sepatu Sneakers Pria H 3276 Brand Hertz Sepatu Kets Kuliah Kerja Jalan Murah Berkualitas Warna Hitam", link: "https://shopee.co.id/Sepatu-Sneakers-Pria-H-3276-Brand-Hertz-Sepatu-Kets-Kuliah-Kerja-Jalan-Murah-Berkualitas-Warna-Hitam-i.24672935.7645803142?sp_atk=69d79afc-8b66-43ed-b31e-b6af33cffb63&xptdk=69d79afc-8b66-43ed-b31e-b6af33cffb63" },                
+                { type: "Sepatu Pria", name: "Sepatu Sneaker Pria Model Terbaru H 2838 Brand Hertz Sepatu Kets Sepatu Sekolah Warna Abu", link: "https://shopee.co.id/Sepatu-Sneaker-Pria-Model-Terbaru-H-2838-Brand-Hertz-Sepatu-Kets-Sepatu-Sekolah-Warna-Abu-i.24672935.2650415057?sp_atk=77460b11-71a9-4b99-bd0d-6b1e4b3168ef&xptdk=77460b11-71a9-4b99-bd0d-6b1e4b3168ef" },                
+                { type: "Sepatu Pria", name: "Sepatu Sneakers Pria H 3247 Brand Hertz Sepatu Kets Olah Raga Kerja Kuliah Hijau Murah Berkualitas", link: "https://shopee.co.id/Sepatu-Sneakers-Pria-H-3247-Brand-Hertz-Sepatu-Kets-Olah-Raga-Kerja-Kuliah-Hijau-Murah-Berkualitas-i.24672935.5142560642?sp_atk=0c39ba69-dd88-4ca0-954d-af2805dcb094&xptdk=0c39ba69-dd88-4ca0-954d-af2805dcb094" },                
+                { type: "Sepatu Pria", name: "Sepatu Sneakers Pria Terbaru H 3810 Brand Hertz Sepatu Dewasa Kets Kuliah Kerja Jalan Jalan Trendi Berkualitas - Navy", link: "https://shopee.co.id/Sepatu-Sneakers-Pria-Terbaru-H-3810-Brand-Hertz-Sepatu-Dewasa-Kets-Kuliah-Kerja-Jalan-Jalan-Trendi-Berkualitas-Navy-i.24672935.23946005996?sp_atk=f77bd9a9-dd90-47d5-a169-4946b6648aef&xptdk=f77bd9a9-dd90-47d5-a169-4946b6648aef" },                
+                { type: "Sepatu Pria", name: "Sepatu Sneaker Pria Terbaru H 2791 Brand Hertz Sepatu Kets Sepatu Sekolah Warna Navy Comb.", link: "https://shopee.co.id/Sepatu-Sneaker-Pria-Terbaru-H-2791-Brand-Hertz-Sepatu-Kets-Sepatu-Sekolah-Warna-Navy-Comb.-i.24672935.2619852433?sp_atk=add5c7eb-8f29-4006-bf45-f5ae7544a20c&xptdk=add5c7eb-8f29-4006-bf45-f5ae7544a20c" }
+            ],
+            "Pakaian Wanita": [
+                { type: "Jilbab Wanita", name: "TANJUNG ORIGINAL Jilbab segi empat custom motif jilbab segi empat", link: "https://shopee.co.id/TANJUNG-ORIGINAL-Jilbab-segi-empat-custom-motif-jilbab-segi-empat-jilbab-segiempat-jilbab-motif-i.79955162.2196598258?sp_atk=b5322b68-3e91-4516-a6fd-4204040b4324&xptdk=b5322b68-3e91-4516-a6fd-4204040b4324" },
+                { type: "Jilbab Wanita", name: "HIJAB SEGITIGA INSTAN XL JERSEY|| SEGITIGA INSTAN JERSEY JILBAB SEGITIGA INSTAN JERSEY", link: "https://shopee.co.id/HIJAB-SEGITIGA-INSTAN-XL-JERSEY-SEGITIGA-INSTAN-JERSEY-JILBAB-SEGITIGA-INSTAN-JERSEY-i.340574253.24432852302?sp_atk=8b9f0816-0a87-4160-bc39-eb290355f444&xptdk=8b9f0816-0a87-4160-bc39-eb290355f444" }, 
+                { type: "Jilbab Wanita", name: "HIJAB MALAY INSTAN TALI ANTI TEMBEM HIJAB BERGO INSTAN", link: "https://shopee.co.id/product/340574253/27504436205" },                
+                { type: "Jilbab Wanita", name: "Aya Hijab Pashmina Kaos Jersey Flowy | Outlet Shopee", link: "https://shopee.co.id/Aya-Hijab-Pashmina-Kaos-Jersey-Flowy-Outlet-Shopee-i.1173241077.20996503828?sp_atk=d9b36bc2-e056-4da8-99a7-2d5469f02f0d&xptdk=d9b36bc2-e056-4da8-99a7-2d5469f02f0d" },                
+                { type: "Jilbab Wanita", name: "Pashmina Kaos Rayon Premium Best Quality", link: "https://shopee.co.id/Pashmina-Kaos-Rayon-Premium-Best-Quality-i.1320270500.28106623806?sp_atk=ef806b61-d09e-4a8f-b0f6-c085212ef486&xptdk=ef806b61-d09e-4a8f-b0f6-c085212ef486" },                
+                { type: "Jilbab Wanita", name: "HIJAB DAGU MALAYSIA INSTAN // BERGO DAGU MALAYSIA_KHIMAR INSTAN DAGU MALAYSIA", link: "https://shopee.co.id/HIJAB-DAGU-MALAYSIA-INSTAN-BERGO-DAGU-MALAYSIA_KHIMAR-INSTAN-DAGU-MALAYSIA-i.1322675350.28156855563?sp_atk=99ee3003-4132-452d-b465-7aa29d7c7f71&xptdk=99ee3003-4132-452d-b465-7aa29d7c7f71" },                
+                { type: "Jilbab Wanita", name: "Jilbab Instan Pinguin Non Ped / Syiria Menutup Perut /Jilbab Instan/Bergo Sport Zaida Size S M L", link: "https://shopee.co.id/Jilbab-Instan-Pinguin-Non-Ped-Syiria-Menutup-Perut-Jilbab-Instan-Bergo-Sport-Zaida-Size-S-M-L-i.775061410.29102322522?sp_atk=0ae41258-e2a8-4e6d-8041-acf7621061c1&xptdk=0ae41258-e2a8-4e6d-8041-acf7621061c1" },                
+                { type: "Jilbab Wanita", name: "Jilbab Bergo Instan / Jilbab Instan / Jilbab Sport / Hamidah Size S M L", link: "https://shopee.co.id/product/775061410/28551089605" },                
+                { type: "Jilbab Wanita", name: "HIJAB INSTAN SIZE MJERSEY MALAY HIJAB SPORT BERGO PINGUIN NON PET", link: "https://shopee.co.id/product/340574253/29204070522" },                
+                { type: "Jilbab Wanita", name: "DAILY HIJAB INSTAN KHIMAR SIZE L LABEL BESI HIJAB/BERGO ALMIRA PINGGUIN", link: "https://shopee.co.id/product/340574253/25066838504" },            
+                { type: "Baju Wanita", name: "NICETOO Kemeja Blouse Wanita Atasan Blouse Wanita Polos Putih Biru Hitam", link: "https://shopee.co.id/NICETOO-Kemeja-Blouse-Wanita-Atasan-Blouse-Wanita-Polos-Putih-Biru-Hitam-i.373758798.14189235560?sp_atk=225da8fc-1b50-4891-abbf-02d5d78cbdee&xptdk=225da8fc-1b50-4891-abbf-02d5d78cbdee" },
+                { type: "Baju Wanita", name: "Kemeja salur wanita//kemeja saku//baju atasan remaja dewasa//outfit kekinian//kemeja terlaris", link: "https://shopee.co.id/kemeja-salur-wanita-kemeja-saku-baju-atasan-remaja-dewasa-outfit-kekinian-kemeja-terlaris-i.256864888.22472382162?sp_atk=80d67549-aa75-4f64-9e3f-f425bcb94cc0&xptdk=80d67549-aa75-4f64-9e3f-f425bcb94cc0" },
+                { type: "Baju Wanita", name: "Zevana Blouse Ukuran S M L XL XXL XXXL XXXXL 2XL 3XL 4XL 2L 3L 4L 5L Kemeja Basic Jumbo - Baju Kerja - Kantor Korea - Blouse Korea", link: "https://shopee.co.id/Zevana-Blouse-Ukuran-S-M-L-XL-XXL-XXXL-XXXXL-2XL-3XL-4XL-2L-3L-4L-5L-Kemeja-Basic-Jumbo-Baju-Kerja-Kantor-Korea-Blouse-Korea-Blouse-Big-Size-Atasan-Korea-i.188229699.12742068763?sp_atk=9c9c6124-d015-48e0-8270-24a2a96932d5&xptdk=9c9c6124-d015-48e0-8270-24a2a96932d5" },
+                { type: "Baju Wanita", name: "Yessa Tunik - Tunik Panjang - Tunik Polos - Atasan Wanita - Atasan Crinkle", link: "https://shopee.co.id/Yessa-Tunik-Tunik-Panjang-Tunik-Polos-Atasan-Wanita-Atasan-Crinkle-i.39491029.18274329294?sp_atk=66bd5072-b5a8-4d60-ae68-29c4606770ba&xptdk=66bd5072-b5a8-4d60-ae68-29c4606770ba" },
+                { type: "Baju Wanita", name: "MICHAE WAFFLE OVERSIZE CROP TOP KOREAN STYLE", link: "https://shopee.co.id/MICHAE-WAFFLE-OVERSIZE-CROP-TOP-KOREAN-STYLE-i.272850894.28701648586?sp_atk=bb67d794-dc6a-4186-870e-319eb5e1cffb&xptdk=bb67d794-dc6a-4186-870e-319eb5e1cffb" },
+                { type: "Baju Wanita", name: "Jyola Kemeja - Blouse Big Size - Size S M L XL XXL 3XL 5L - Blouse Jumbo - Kemeja Putih - Kemeja Oversize", link: "https://shopee.co.id/Jyola-Kemeja-Blouse-Big-Size-Size-S-M-L-XL-XXL-3XL-5L-Blouse-Jumbo-Kemeja-Putih-Kemeja-Oversize-i.303493559.17282918157?sp_atk=663a470f-2d04-4d0d-9c2c-9838e0b46d5a&xptdk=663a470f-2d04-4d0d-9c2c-9838e0b46d5a" },
+                { type: "Baju Wanita", name: "Zevanya Blouse Oversize", link: "https://shopee.co.id/Zevanya-Blouse-Oversize-Size-S-M-L-XL-XXL-3XL-5L-Atasan-Wanita-Big-Size-Blouse-Jumbo-Atasan-Wanita-Over-Size-Atasan-Basic-Polos-Wanita-Blouse-Wanita-Remaja-Kekinian-Blouse-Kimono-Ikat-Pinggang-Atasan-Jumbo-Oversize-Kemeja-Atasan-Kantor-i.303493559.16199618106" },
+                { type: "Baju Wanita", name: "BELOUSE WANITA TERBARU AGATA BAJU ATASAN CEWEK POLOS KEKINIAN KOREAAN", link: "https://shopee.co.id/BELOUSE-WANITA-TERBARU-AGATA-BAJU-ATASAN-CEWEK-POLOS-KEKINIAN-KOREAAN-i.496075749.12360151978?sp_atk=5df0ce4b-981c-42ec-ad84-4b8ac8c7d256&xptdk=5df0ce4b-981c-42ec-ad84-4b8ac8c7d256" },
+                { type: "Baju Wanita", name: "Ramdan Official - Kemeja Kerja Elsa Oversize Wanita Kantoran Putih Polos Shakila Jumbo LD 120 Atasan Wanita Lengan Panjang Muslimah", link: "https://shopee.co.id/Ramdan-Official-Kemeja-Kerja-Elsa-Oversize-Wanita-Kantoran-Putih-Polos-Shakila-Jumbo-LD-120-Atasan-Wanita-Lengan-Panjang-Muslimah-Kekinian-Model-Korean-Style-Outfit-OOTD-Hijab-i.629195415.22976948043?sp_atk=607a61ed-6afd-4e9f-80c8-177ced1e194b&xptdk=607a61ed-6afd-4e9f-80c8-177ced1e194b" },
+                { type: "Baju Wanita", name: "ELSA Kemeja - Size S M L XL XXL 3XL 4XL - Kemeja Putih Polos Jumbo Baju Atasan Wanita Bigsize", link: "https://shopee.co.id/ELSA-Kemeja-Size-S-M-L-XL-XXL-3XL-4XL-Kemeja-Putih-Polos-Jumbo-Baju-Atasan-Wanita-Bigsize-i.629195415.22851455552?sp_atk=fe7aec54-d5e3-4ce4-afb1-002ca469fd98&xptdk=fe7aec54-d5e3-4ce4-afb1-002ca469fd98" },
+                { type: "Tas Wanita", name: "TAS WANITA IMPORT GUCCI 6580 PREMIUM SUPER", link: "https://shopee.co.id/TAS-WANITA-IMPORT-GUCCI-6580-PREMIUM-SUPER-i.762215575.23406492422?sp_atk=ebcb3814-cd37-4c8d-ade5-2f1c77d62352&xptdk=ebcb3814-cd37-4c8d-ade5-2f1c77d62352" },                         
+                { type: "Rok Wanita", name: "Rok Pendek Wanita", link: "https://shopee.co.id/Rok-Pendek-Wanita-Simple-Korean-Kerja-Kuliah-Kantor-Skirt-Casual-Cepat-i.174272092.15878760364?sp_atk=78f30c5a-f802-4979-b2d7-7c8fe1e12bdf&xptdk=78f30c5a-f802-4979-b2d7-7c8fe1e12bdf" },
+                { type: "Sepatu Wanita", name: "Sepatu Sneaker Casual Wanita Import Kekinian Murah", link: "https://shopee.co.id/Sepatu-Sneaker-Casual-Wanita-Import-Kekinian-Murah-i.264273756.8159422045?sp_atk=dcaa9f64-849a-4d07-b02e-97bfe743cd02&xptdk=dcaa9f64-849a-4d07-b02e-97bfe743cd02" }
+            ],
+            "Pakaian Anak": [
+                { type: "Baju Anak", name: "Baju anak laki laki setelan pendek kemeja anak casual", link: "https://shopee.co.id/Baju-anak-laki-laki-setelan-pendek-kemeja-anak-casual-setelan-anak-cowok-i.39813901.23916568693?sp_atk=cd93d649-4f5e-47da-9dbb-3f795f203ce3&xptdk=cd93d649-4f5e-47da-9dbb-3f795f203ce3" },
+                { type: "Celana Anak", name: "Celana anak laki laki Cargo pendek dan panjang untuk jalan2 ", link: "https://shopee.co.id/Celana-anak-laki-laki-Cargo-pendek-dan-panjang-untuk-jalan2-i.399171186.15768876007?sp_atk=18ae38b3-c3d6-4723-b7e3-e4eb17c624b4&xptdk=18ae38b3-c3d6-4723-b7e3-e4eb17c624b4" },
+                { type: "Sepatu Anak", name: "Sepatu Sekolah Anak Perempuan ", link: "https://shopee.co.id/Sepatu-Sekolah-Anak-Perempuan-Se-Korea-Gaya-Bagus-Sneakers-Dengan-Sepatu-Kanvas-Ringan-Student-Sepatu-Flat-i.743931849.15145148934?sp_atk=d933e2aa-0e32-40d3-90b7-f75cb7fa5189&xptdk=d933e2aa-0e32-40d3-90b7-f75cb7fa5189" }
+            ]
+        };
+
+        document.getElementById("searchForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const brand = document.getElementById("brand").value;
+            const type = document.getElementById("type").value;
+            const selectedProducts = products[brand] || [];
+            const resultsDiv = document.getElementById("results");
+
+            // Bersihkan hasil pencarian sebelumnya
+            resultsDiv.innerHTML = "";
+
+            // Filter produk berdasarkan tipe
+            const filteredProducts = selectedProducts.filter(product => type === "" || product.type === type);
+
+            // Tampilkan hasil pencarian
+            if (filteredProducts.length > 0) {
+                filteredProducts.forEach(product => {
+                    const productElement = document.createElement("div");
+                    productElement.classList.add("result-container");
+                    productElement.innerHTML = `<a href="${product.link}" target="_blank">${product.name}</a>`;
+                    resultsDiv.appendChild(productElement);
+                });
+            } else {
+                resultsDiv.innerHTML = "<p>Sorry, no matching products found🙏.</p>";
+            }
+        });
+    </script>
+</body>
+</html>
